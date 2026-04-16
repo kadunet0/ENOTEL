@@ -144,6 +144,40 @@
       color: #cce0ff;
     }
 
+    .reactions {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .reactions h2 {
+      text-align: center;
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+      letter-spacing: 0.2px;
+      color: #e9f2ff;
+    }
+
+    .reactions p {
+      text-align: center;
+      color: #cfe1ff;
+      font-size: 0.92rem;
+      margin: 0 auto 12px;
+      max-width: 54ch;
+      line-height: 1.35;
+    }
+
+    .giscus-wrap {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .giscus-wrap > .giscus {
+      min-height: 260px;
+    }
+
     .dance-btn {
       display: block;
       width: fit-content;
@@ -162,6 +196,11 @@
     .dance-btn:hover {
       background: rgba(255, 255, 255, 0.18);
       transform: translateY(-1px);
+    }
+
+    .reactions-btn {
+      margin-top: 10px;
+      border-color: rgba(69, 179, 255, 0.55);
     }
 
     .video-modal {
@@ -288,6 +327,17 @@
       </div>
 
       <a class="dance-btn" id="danceButton" href="#" aria-label="Aprenda a dança">Aprenda a dança</a>
+      <a class="dance-btn reactions-btn" href="#reacoes" aria-label="Ver reações e comentários">Reações</a>
+
+      <div class="reactions" id="reacoes">
+        <h2>Reações e comentários</h2>
+        <p>
+          Deixe um recado aqui. Quem abrir o site no celular também vai ver (fica salvo no GitHub).
+        </p>
+        <div class="giscus-wrap">
+          <div class="giscus"></div>
+        </div>
+      </div>
 
     </section>
   </div>
@@ -487,5 +537,28 @@
     setTimeout(() => launchFirework(), 400);
     tick();
   </script>
+
+  <!--
+    Comentários via Giscus (GitHub Discussions).
+    Para funcionar no GitHub Pages você precisa:
+    - Ativar "Discussions" no repositório
+    - Configurar no https://giscus.app e colar aqui os ids corretos
+  -->
+  <script
+    src="https://giscus.app/client.js"
+    data-repo="kadunet0/ENOTEL"
+    data-repo-id="R_kgDOSEhE0w"
+    data-category="General"
+    data-category-id="DIC_kwDOSEhE084C7A3V"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="preferred_color_scheme"
+    data-lang="pt"
+    crossorigin="anonymous"
+    async
+  ></script>
 </body>
 </html>
