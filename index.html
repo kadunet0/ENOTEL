@@ -24,7 +24,8 @@
       color: var(--text);
       background: radial-gradient(circle at top, #1a3d66, var(--bg) 72%);
       min-height: 100vh;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       position: relative;
     }
 
@@ -207,9 +208,56 @@
       font-weight: 600;
     }
 
+    .audio-hint {
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      z-index: 20;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      background: rgba(6, 20, 38, 0.92);
+      color: #ffffff;
+      padding: 11px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: none;
+    }
+
+    .audio-hint.show {
+      display: block;
+    }
+
     @media (max-width: 680px) {
+      .container {
+        padding: 14px;
+        min-height: auto;
+      }
+
+      .card {
+        border-radius: 16px;
+        padding: 14px;
+      }
+
       .countdown {
         grid-template-columns: repeat(2, minmax(90px, 1fr));
+      }
+
+      .gallery {
+        width: 100%;
+        height: clamp(250px, 48vh, 360px);
+      }
+
+      .video-modal {
+        padding: 10px;
+      }
+
+      .video-frame {
+        padding: 8px;
+      }
+
+      .video-frame video {
+        max-height: 58vh;
       }
     }
   </style>
@@ -246,12 +294,14 @@
 
   <div class="video-modal" id="videoModal" aria-hidden="true">
     <div class="video-frame">
-      <video id="danceVideo" controls preload="metadata">
+      <video id="danceVideo" controls preload="metadata" playsinline webkit-playsinline>
         <source src="./Dança/YTDown.com_YouTube_Cante-e-dance-o-jingle-mais-amado-do-Bra_Media_E-pCDghy_44_001_1080p.mp4" type="video/mp4" />
       </video>
       <button class="close-video" id="closeVideoButton" type="button">Fechar vídeo</button>
     </div>
   </div>
+
+  <button class="audio-hint" id="audioHint" type="button">Toque para ativar a música</button>
 
   <script>
     const targetDate = new Date("2026-06-25T00:00:00-03:00").getTime();
@@ -264,6 +314,7 @@
     const videoModal = document.getElementById("videoModal");
     const danceVideo = document.getElementById("danceVideo");
     const closeVideoButton = document.getElementById("closeVideoButton");
+    const audioHint = document.getElementById("audioHint");
 
     const backgroundAudio = new Audio("./Dança/YTDown.com_YouTube_Cante-e-dance-o-jingle-mais-amado-do-Bra_Media_E-pCDghy_44_001_1080p.mp4");
     backgroundAudio.loop = true;
@@ -272,11 +323,15 @@
     let backgroundAudioStarted = false;
 
     function startBackgroundAudio() {
-      if (backgroundAudioStarted) return;
+      if (backgroundAudioStarted) {
+        audioHint.classList.remove("show");
+        return;
+      }
       backgroundAudio.play().then(() => {
         backgroundAudioStarted = true;
+        audioHint.classList.remove("show");
       }).catch(() => {
-        /* Aguarda uma nova interacao para tentar de novo */
+        audioHint.classList.add("show");
       });
     }
 
@@ -339,6 +394,10 @@
       });
     });
 
+    audioHint.addEventListener("click", () => {
+      startBackgroundAudio();
+    });
+
     closeVideoButton.addEventListener("click", () => {
       videoModal.classList.remove("show");
       videoModal.setAttribute("aria-hidden", "true");
@@ -353,7 +412,11 @@
       }
     });
 
+    window.addEventListener("load", () => {
+      startBackgroundAudio();
+    });
     document.addEventListener("click", startBackgroundAudio, { once: true });
+    document.addEventListener("touchstart", startBackgroundAudio, { once: true });
 
     const canvas = document.getElementById("fireworks");
     const ctx = canvas.getContext("2d");
