@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contagem para o Enotel</title>
+  <style>
+    :root {
+      --bg: #081426;
+      --card: rgba(9, 22, 42, 0.82);
+      --text: #f5f7ff;
+      --highlight: #ffd447;
+      --accent: #45b3ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top, #1a3d66, var(--bg) 72%);
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #fireworks {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(960px, 100%);
+      background: rgba(9, 22, 42, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      padding: 20px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 6px;
+      font-size: clamp(1.4rem, 2.6vw, 2rem);
+    }
+
+    .sub {
+      text-align: center;
+      margin-bottom: 16px;
+      color: #d8e8ff;
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(90px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .time-box {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      text-align: center;
+      padding: 14px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .time-box span {
+      display: block;
+      font-size: clamp(1.5rem, 3.4vw, 2.2rem);
+      font-weight: 700;
+      color: var(--highlight);
+    }
+
+    .time-box small {
+      display: block;
+      margin-top: 2px;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .gallery {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      width: min(520px, 100%);
+      margin: 0 auto;
+      background: rgba(0, 0, 0, 0.22);
+      height: clamp(320px, 56vh, 520px);
+    }
+
+    .gallery img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transform: scale(1.015);
+      transition: opacity 2s ease, transform 10s ease;
+      filter: saturate(1.04) contrast(1.03);
+      image-rendering: auto;
+    }
+
+    .gallery img.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .caption {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 12px 14px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+      font-size: 0.95rem;
+      color: #f0f7ff;
+    }
+
+    .footer-note {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 0.88rem;
+      color: #cce0ff;
+    }
+
+    .dance-btn {
+      display: block;
+      width: fit-content;
+      margin: 16px auto 0;
+      padding: 11px 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.1);
+      color: #f5f7ff;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .dance-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .video-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 12;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 8, 16, 0.82);
+      padding: 18px;
+    }
+
+    .video-modal.show {
+      display: flex;
+    }
+
+    .video-frame {
+      width: min(920px, 100%);
+      background: #071325;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
+    }
+
+    .video-frame video {
+      width: 100%;
+      max-height: 72vh;
+      border-radius: 12px;
+      display: block;
+      background: #000;
+    }
+
+    .close-video {
+      margin-top: 8px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      padding: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    @media (max-width: 680px) {
+      .countdown {
+        grid-template-columns: repeat(2, minmax(90px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fireworks"></canvas>
+
+  <div class="container">
+    <section class="card">
+      <h1>Contagem para Porto de Galinhas - ENOTEL</h1>
+      <p class="sub">A viagem é dia 25/06/2026</p>
+
+      <div class="countdown" aria-live="polite">
+        <div class="time-box"><span id="days">0</span><small>Dias</small></div>
+        <div class="time-box"><span id="hours">0</span><small>Horas</small></div>
+        <div class="time-box"><span id="minutes">0</span><small>Minutos</small></div>
+        <div class="time-box"><span id="seconds">0</span><small>Segundos</small></div>
+      </div>
+
+      <div class="gallery" id="gallery">
+        <img class="active" src="./fotos/1.jpg" alt="Piscina do resort Enotel" />
+        <img src="./fotos/2.webp" alt="Area de gastronomia no Enotel" />
+        <img src="./fotos/3.jpg" alt="Area externa iluminada no resort" />
+        <img src="./fotos/4.jpg" alt="Vista panoramica do hotel e da praia" />
+        <img src="./fotos/5.jpg" alt="Piscina do resort em dia ensolarado" />
+        <img src="./fotos/enotel-resort-porto-de-galinhas-pacote-de-viagem-7-35.jpg" alt="Resort de frente para o mar" />
+        <div class="caption" id="caption">Clima leve e tranquilo para esperar a viagem.</div>
+      </div>
+
+      <a class="dance-btn" id="danceButton" href="#" aria-label="Aprenda a dança">Aprenda a dança</a>
+
+    </section>
+  </div>
+
+  <div class="video-modal" id="videoModal" aria-hidden="true">
+    <div class="video-frame">
+      <video id="danceVideo" controls preload="metadata">
+        <source src="./Dança/YTDown.com_YouTube_Cante-e-dance-o-jingle-mais-amado-do-Bra_Media_E-pCDghy_44_001_1080p.mp4" type="video/mp4" />
+      </video>
+      <button class="close-video" id="closeVideoButton" type="button">Fechar vídeo</button>
+    </div>
+  </div>
+
+  <script>
+    const targetDate = new Date("2026-06-25T00:00:00-03:00").getTime();
+    const daysEl = document.getElementById("days");
+    const hoursEl = document.getElementById("hours");
+    const minutesEl = document.getElementById("minutes");
+    const secondsEl = document.getElementById("seconds");
+    const captionEl = document.getElementById("caption");
+    const danceButton = document.getElementById("danceButton");
+    const videoModal = document.getElementById("videoModal");
+    const danceVideo = document.getElementById("danceVideo");
+    const closeVideoButton = document.getElementById("closeVideoButton");
+
+    const backgroundAudio = new Audio("./Dança/YTDown.com_YouTube_Cante-e-dance-o-jingle-mais-amado-do-Bra_Media_E-pCDghy_44_001_1080p.mp4");
+    backgroundAudio.loop = true;
+    backgroundAudio.volume = 0.16;
+
+    let backgroundAudioStarted = false;
+
+    function startBackgroundAudio() {
+      if (backgroundAudioStarted) return;
+      backgroundAudio.play().then(() => {
+        backgroundAudioStarted = true;
+      }).catch(() => {
+        /* Aguarda uma nova interacao para tentar de novo */
+      });
+    }
+
+    function updateCountdown() {
+      const now = Date.now();
+      let diff = targetDate - now;
+
+      if (diff <= 0) {
+        daysEl.textContent = "0";
+        hoursEl.textContent = "0";
+        minutesEl.textContent = "0";
+        secondsEl.textContent = "0";
+        captionEl.textContent = "Chegou o grande dia. Boa viagem e curtam muito.";
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      diff %= 1000 * 60 * 60 * 24;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      diff %= 1000 * 60 * 60;
+      const minutes = Math.floor(diff / (1000 * 60));
+      diff %= 1000 * 60;
+      const seconds = Math.floor(diff / 1000);
+
+      daysEl.textContent = String(days);
+      hoursEl.textContent = String(hours).padStart(2, "0");
+      minutesEl.textContent = String(minutes).padStart(2, "0");
+      secondsEl.textContent = String(seconds).padStart(2, "0");
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    const slides = Array.from(document.querySelectorAll(".gallery img"));
+    const captions = [
+      "Clima leve e tranquilo para esperar a viagem.",
+      "Sabores especiais esperando por voces.",
+      "Noites lindas para descansar e curtir.",
+      "Porto de Galinhas no ritmo da paz.",
+      "Sol, piscina e momentos em familia.",
+      "Cada dia aproxima voces desse paraiso."
+    ];
+    let current = 0;
+
+    setInterval(() => {
+      slides[current].classList.remove("active");
+      current = (current + 1) % slides.length;
+      slides[current].classList.add("active");
+      captionEl.textContent = captions[current];
+    }, 7000);
+
+    danceButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      startBackgroundAudio();
+      videoModal.classList.add("show");
+      videoModal.setAttribute("aria-hidden", "false");
+      danceVideo.currentTime = 0;
+      danceVideo.play().catch(() => {
+        /* Em alguns navegadores o usuario pode precisar clicar no play */
+      });
+    });
+
+    closeVideoButton.addEventListener("click", () => {
+      videoModal.classList.remove("show");
+      videoModal.setAttribute("aria-hidden", "true");
+      danceVideo.pause();
+    });
+
+    videoModal.addEventListener("click", (event) => {
+      if (event.target === videoModal) {
+        videoModal.classList.remove("show");
+        videoModal.setAttribute("aria-hidden", "true");
+        danceVideo.pause();
+      }
+    });
+
+    document.addEventListener("click", startBackgroundAudio, { once: true });
+
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    let w = 0;
+    let h = 0;
+    const particles = [];
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function launchFirework() {
+      const x = random(w * 0.1, w * 0.9);
+      const y = random(h * 0.12, h * 0.5);
+      const count = 22;
+      const hue = random(0, 360);
+
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count;
+        const speed = random(1.1, 2.6);
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: random(34, 56),
+          alpha: 1,
+          color: `hsl(${hue + random(-18, 18)}, 84%, 66%)`
+        });
+      }
+    }
+
+    function tick() {
+      ctx.fillStyle = "rgba(8, 20, 38, 0.3)";
+      ctx.fillRect(0, 0, w, h);
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.015;
+        p.life -= 1;
+        p.alpha = p.life / 56;
+
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        ctx.globalAlpha = Math.max(p.alpha, 0);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2.1, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(tick);
+    }
+
+    setInterval(launchFirework, 2400);
+    setTimeout(() => launchFirework(), 400);
+    tick();
+  </script>
+</body>
+</html>
